@@ -28,7 +28,7 @@ def scrape_to_find_brands():
     return brand_list
 
 def getExisistingRecords():
-    cur.execute("select * from brand_schema.brandtbl")
+    cur.execute("select * from brandtbl")
     rows = cur.fetchall()
     list = []
     for row in rows:
