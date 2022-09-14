@@ -1,13 +1,8 @@
 import os
-import psycopg2
+import sqlite3
 
-def heroku_db_init():
-    DATABASE_URL = os.environ['DATABASE_URL']
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    print("!!!!!!!!!!!!!!! DB CONN SUXXX !!!!!!!!!!!!!!!")
-    return conn
-
+TABLE_NAME = "../db/db.sqlite3"
 def local_db_init():
-    conn = psycopg2.connect(database = "testdb", user = "postgres", password = "admin", host = "127.0.0.1", port = "5432")
+    conn = sqlite3.connect(TABLE_NAME)
     print("!!!!!!!!!!!!!!! DB CONN SUXXX !!!!!!!!!!!!!!!")
     return conn
