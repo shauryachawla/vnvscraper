@@ -6,12 +6,13 @@ import os
 import psycopg2
 import config
 import queries
-
+import time
+from plyer import notification
 
 # db connex
 def setup_db():
     global CONN 
-    CONN = config.heroku_db_init()
+    CONN = config.local_db_init()
     print("db opened succex")
 
 # scrapin
@@ -28,7 +29,7 @@ def scrape_to_find_brands():
     return brand_list
 
 def getExisistingRecords():
-    cur.execute("select * from brandtbl")
+    cur.execute("select * from brand_schema.brandtbl")
     rows = cur.fetchall()
     list = []
     for row in rows:
@@ -36,18 +37,30 @@ def getExisistingRecords():
         list.append(row[1])
     return list
 
+def sendNotif():
+     notification.notify(
+            #title of the notification,
+            title = "New Kicks Available!",
+            #the body of the notification
+            message = "Head over to VNV right now!!",
+            # the notification stays for 50sec
+            timeout  = 50
+        )
+
 setup_db();
 with CONN:
-    brand_list = scrape_to_find_brands();
-    global cur 
-    cur = CONN.cursor();
-    existing_list = getExisistingRecords();
-    new_list = scrape_to_find_brands()
-    if((new_list == existing_list ) == False):
-        print("lists are different")
-        # sendNotif();
-        queries.deleteAllRecords(cur);
-        queries.insertNewRecords(cur, new_list);
-        CONN.commit()
-    else:
-        print("No new records")
+    while(True):
+        brand_list = scrape_to_find_brands();
+        global cur 
+        cur = CONN.cursor();
+        existing_list = getExisistingRecords();
+        new_list = scrape_to_find_brands()
+        if((new_list == existing_list ) == False):
+            print("lists are different")
+            sendNotif();
+            queries.deleteAllRecords(cur);
+            queries.insertNewRecords(cur, new_list);
+            CONN.commit()
+        else:
+            print("No new records")
+        time.sleep(60*60*5)
